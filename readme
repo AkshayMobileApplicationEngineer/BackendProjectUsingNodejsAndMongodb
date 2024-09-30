@@ -1,0 +1,38 @@
+akshaykumarprajapati
+
+
+
+
+
+mongodb+srv://akshaykumarprajapati:<db_password>@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
+
+MONGO_URI=mongodb+srv://akshaykumarprajapati:akshaykumarprajapati@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
+
+
+
+
+
+CORS_ORIGIN=*
+ACCESS_TOKEN_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjZlYzVmZjFhYzk3ZTdmZDVmNmI4OWVlIn0sImlhdCI6MTcyNjc2NzA4OSwiZXhwIjoxNzI2NzcwNjg5fQ.svmLuxlOAcrhBHQWXASEHKZfXRKw9K7Hvcha8mcl84
+ACCESS_TOKEN_EXPIRES_IN=1d
+REFRESH_TOKEN_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjZlYzVmZjFhYzk3ZTdmZDVmNmI4OWVlIn0sImlhdCI6MTcyNjc2NzA4OSwiZXhwIjoxNzI2NzcwNjg5fQ.svmLuxlOAcrhBHQWXASEHKZfXRKw9K7Hvcha8mcl84
+REFRESH_TOKEN_EXPIRES_IN=7d
+
+
+
+CLOUDINARY_NAME=dhoe9htic
+CLOUDINARY_API_KEY=538386617635724
+CLOUDINARY_API_SECRET=_QLHaWaKnutBITuNE0S7qvmDSGM
+
+
+
+post http://localhost:3000/api/v1/user/register
+
+
+{
+    "success": true,
+    "message": "User Register Now"
+}
+
