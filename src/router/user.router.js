@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { loginUser, registerUser, logoutUser } from '../controller/user.controller.js'; // Correct import name
+import { loginUser, registerUser, logoutUser,refreshAccessToken } from '../controller/user.controller.js'; // Correct import name
 import { upload } from '../middleware/multer.middleware.js';
 import { VerifyJWT } from '../middleware/auth.middleware.js'; // Corrected spelling
 
@@ -34,6 +34,8 @@ router.route('/logout').post(VerifyJWT, logoutUser);
 
 // Log route for logout
 console.log(`http://localhost:${process.env.PORT}/api/v1/user/logout`.yellow);
+
+router.route("/refresh-Token").post(refreshAccessToken);
 
 
 

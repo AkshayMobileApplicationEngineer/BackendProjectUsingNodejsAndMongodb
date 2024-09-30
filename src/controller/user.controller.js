@@ -6,6 +6,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { User } from '../model/user.model.js'; // Import your User model
 import uploadOnCloudinary from '../utils/uploadOnCloudinary.js'; // Ensure Cloudinary setup is correctly imported
 import cookieParser from 'cookie-parser'; // cookie parser
+import jwt from 'jsonwebtoken';
 
 const generateAccessAndRefreshToken = async (findAccountId) => {
   try {
@@ -103,7 +104,7 @@ const loginUser = asyncHandler(async (req, res) => {
   console.log(req.body);
 
   // Username or email
-  if (!email || !password) {
+  if (!email && !password) {
     throw new ApiError(400, "Username or email is required");
   }
 
@@ -172,5 +173,64 @@ const logoutUser = asyncHandler(async (req, res) => {
     );
 });
 
+
+//Access Token Refresh 
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  try {
+    // Retrieve the refresh token from cookies or the request body
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+
+    console.log(incomingRefreshToken);
+
+    // Check if the incoming refresh token is missing
+    if (!incomingRefreshToken) {
+      throw new ApiError(401, "Unauthorized request: No refresh token provided");
+    }
+
+    // Verify the refresh token
+    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    // Find the user by ID from the decoded token
+    const user = await User.findById(decodedToken?._id);
+
+    // Check if the user exists
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token: User not found");
+    }
+
+    // Check if the refresh token matches the one stored for the user
+    if (incomingRefreshToken !== user?.refreshToken) {
+      throw new ApiError(401, "Refresh token is expired or used");
+    }
+
+  //Generate new access and refreshtokens
+    const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user._id);
+
+    // Cookie options
+    const options = {
+      httpOnly: true,
+      secure: true, 
+      // Use `secure` in production over HTTPS
+    };
+
+    // Set the new tokens in cookies and return a response
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
+      .json(
+        new ApiResponse(200, {
+          accessToken,
+          refreshToken: newRefreshToken,
+          message: "Access token refreshed successfully",
+        })
+      );
+  } catch (error) {
+    // Handle any error that occurs and send a proper error message
+    throw new ApiError(401, error.message || "Invalid refresh token");
+  }
+});
+
+
 // Export the functions
-export { registerUser, loginUser, logoutUser };
+export { registerUser, loginUser, logoutUser,refreshAccessToken };

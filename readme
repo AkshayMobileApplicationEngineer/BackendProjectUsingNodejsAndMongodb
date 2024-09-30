@@ -35,4 +35,53 @@ post http://localhost:3000/api/v1/user/register
     "success": true,
     "message": "User Register Now"
 }
+POst  http://localhost:3000/api/v1/user/login
+{
+    "email":"kumari@testing.com",
+    "password":"apitesti"
+}
+
+respoond 
+
+
+{
+    "statusCode": 200,
+    "success": true,
+    "message": "User Logged In Successfully",
+    "data": {
+        "user": {
+            "_id": "66f6c72297fe51d7660bba49",
+            "username": "neha@gmail",
+            "email": "kumari@testing.com",
+            "fullname": "Neha kumar praja",
+            "avatar": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448873/tkh4zxykyzltvivrctee.jpg",
+            "coverImage": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448874/hdvqkh538f8wgynha9ys.png",
+            "watchHistory": [],
+            "createdAt": "2024-09-27T14:54:26.936Z",
+            "updatedAt": "2024-09-30T17:38:04.001Z",
+            "__v": 0
+        },
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmY2YzcyMjk3ZmU1MWQ3NjYwYmJhNDkiLCJlbWFpbCI6Imt1bWFyaUB0ZXN0aW5nLmNvbSIsInVzZXJuYW1lIjoibmVoYUBnbWFpbCIsImZ1bGxuYW1lIjoiTmVoYSBrdW1hciBwcmFqYSIsImlhdCI6MTcyNzcxNzg4MywiZXhwIjoxNzI3ODA0MjgzfQ.YKV4kVMtdAPz9tPVKTAZCQ3_Q6AylzQHjW4UlW5ab7I",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmY2YzcyMjk3ZmU1MWQ3NjYwYmJhNDkiLCJpYXQiOjE3Mjc3MTc4ODMsImV4cCI6MTcyODMyMjY4M30.vo0G3gZZVnZJjGWNO4QeX0P2_5-rJtVgS0eOnIuTAG0"
+    }
+}
+
+
+
+///logout 
+
+POst  http://localhost:3000/api/v1/user/logout
+
+send the data none
+
+response data 
+
+{
+    "statusCode": 200,
+    "success": true,
+    "message": "User logged out successfully",
+    "data": {}
+}
+
+
 
