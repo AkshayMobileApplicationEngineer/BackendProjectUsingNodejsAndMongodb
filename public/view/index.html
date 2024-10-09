@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" href="./css/api.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1 style="color: rgb(40, 83, 120);">API Documentation</h1>
+            <p>By Akshay Kumar Prajapati</p>
+        </header>
+
+        <section>
+            <h2>Database Connection URI</h2>
+            <pre>mongodb+srv://akshaykumarprajapati:&lt;db_password&gt;@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0</pre>
+        </section>
+
+        <section>
+            <h2>Environment Variables</h2>
+            <pre>
+MONGO_URI=mongodb+srv://akshaykumarprajapati:akshaykumarprajapati@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
+CORS_ORIGIN=*
+ACCESS_TOKEN_SECRET=&lt;ACCESS_TOKEN_SECRET&gt;
+ACCESS_TOKEN_EXPIRES_IN=1d
+REFRESH_TOKEN_SECRET=&lt;REFRESH_TOKEN_SECRET&gt;
+REFRESH_TOKEN_EXPIRES_IN=7d
+CLOUDINARY_NAME=dhoe9htic
+CLOUDINARY_API_KEY=538386617635724
+CLOUDINARY_API_SECRET=&lt;CLOUDINARY_API_SECRET&gt;
+            </pre>
+        </section>
+
+        <section>
+            <h2>API Endpoint</h2>
+            <h3>Register User</h3>
+            <p><strong>POST</strong> <code>http://localhost:3000/api/v1/user/register</code></p>
+
+            <h3>Request Body</h3>
+            <div class="example">
+                <pre>
+{
+    "email": "akshaykumar@gmail.com",
+    "password": "1234565432",
+    "fullname": "Akshay Kumar Prajapati",
+    "username": "akshaykumar"
+}
+                </pre>
+            </div>
+
+            <h3>Response Body (Success)</h3>
+            <pre>
+{
+    "success": true,
+    "message": "User registered successfully"
+}
+            </pre>
+
+            <h3>Response Body (Error)</h3>
+            <pre>
+{
+    "success": false,
+    "message": "Server Error",
+    "error": "Avatar file is required"
+}
+            </pre>
+        </section>
+
+    POST    http://localhost:3000/api/v1/user/register
+
+    form data
+    [{"key":"fullname","value":"Vishal kumar praja","type":"text","enabled":true},{"key":"avatar","type":"file","enabled":true,"value":["postman-cloud:///1ef7cde1-000b-4340-941c-55680855b0c3"]},{"key":"coverImage","type":"file","enabled":true,"value":["postman-cloud:///1ef7bd5e-ef6f-4ff0-b767-dc6c36141029"]},{"key":"email","value":"vishal@testing.com","type":"text","enabled":true},{"key":"password","value":"apitesti","type":"text","enabled":true},{"key":"username","value":"testing@gmail","type":"text","enabled":true}]
+
+
+    Response data
+    {
+        "statusCode": 200,
+        "message": "User registered successfully",
+        "success": true,
+        "data": {
+            "_id": "66f6c72297fe51d7660bba49",
+            "username": "neha@gmail",
+            "email": "kumari@testing.com",
+            "fullname": "Neha kumar praja",
+            "avatar": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448873/tkh4zxykyzltvivrctee.jpg",
+            "coverImage": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448874/hdvqkh538f8wgynha9ys.png",
+            "watchHistory": [],
+            "createdAt": "2024-09-27T14:54:26.936Z",
+            "updatedAt": "2024-09-27T14:54:26.936Z",
+            "__v": 0
+        }
+    }
+        <footer>
+            <p>&copy; 2024 Akshay Kumar Prajapati. All rights reserved.</p>
+            <a href="http://localhost:3000/api/v1/user/register" class="fancy-button">Test API</a>
+        </footer>
+    </div>
+
+</body>
+</html>
