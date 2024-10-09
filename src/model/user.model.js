@@ -52,13 +52,11 @@ const userSchema = new Schema(
 );
 
 // Hash password before saving the user
-userSchema.pre(
-    "save", async function (next) {
-        if (!this.isModified("password")) return next();
-        this.password = await bcrypt.hash(this.password, 10); // Await for async hash
-        next();
-    }
-);
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 10); // Hashing password
+    next();
+});
 
 // Check if password is correct
 userSchema.methods.isPasswordCorrect = async function(password) {
@@ -76,7 +74,7 @@ userSchema.methods.generateAccessToken = function() {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m' // Default expiration time
         }
     );
 }
@@ -89,12 +87,9 @@ userSchema.methods.generateRefreshToken = function() {
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d' // Default expiration time
         }
     );
 }
 
-
-
 export const User = mongoose.model('User', userSchema);
-

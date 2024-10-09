@@ -1,9 +1,14 @@
 import { Router } from 'express';
-import { loginUser, registerUser, logoutUser,refreshAccessToken } from '../controller/user.controller.js'; // Correct import name
+import { loginUser, registerUser, logoutUser, refreshAccessToken } from '../controller/user.controller.js';
 import { upload } from '../middleware/multer.middleware.js';
-import { VerifyJWT } from '../middleware/auth.middleware.js'; // Corrected spelling
+import { VerifyJWT } from '../middleware/auth.middleware.js';
+import colors from 'colors'; // Importing colors for colored console logs
 
 const router = Router();
+
+const logRoute = (route, method, color) => {
+  console.log(`${method.toUpperCase()}: http://localhost:${process.env.PORT}/api/v1/user${route}`[color]);
+};
 
 // Route for user registration
 router.route('/register').post(
@@ -19,24 +24,18 @@ router.route('/register').post(
   ]),
   registerUser
 );
-
-// Log route for registration
-console.log(`http://localhost:${process.env.PORT}/api/v1/user/register`.green);
+logRoute('/register', 'post', 'green');
 
 // Route for user login
 router.route('/login').post(loginUser);
-
-// Log route for login
-console.log(`http://localhost:${process.env.PORT}/api/v1/user/login`.yellow);
+logRoute('/login', 'post', 'yellow');
 
 // Secured route for logout
 router.route('/logout').post(VerifyJWT, logoutUser);
+logRoute('/logout', 'post', 'yellow');
 
-// Log route for logout
-console.log(`http://localhost:${process.env.PORT}/api/v1/user/logout`.yellow);
-
-router.route("/refresh-Token").post(refreshAccessToken);
-
-
+// Route for refreshing token
+router.route('/refresh-Token').post(refreshAccessToken);
+logRoute('/refresh-Token', 'post', 'blue');
 
 export default router;
