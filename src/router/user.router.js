@@ -7,6 +7,10 @@ import colors from 'colors'; // Importing colors for colored console logs
 const router = Router();
 
 const logRoute = (route, method, color) => {
+  if (!process.env.PORT) {
+    console.error('PORT is not defined in environment variables'.red);
+    return;
+  }
   console.log(`${method.toUpperCase()}: http://localhost:${process.env.PORT}/api/v1/user${route}`[color]);
 };
 
