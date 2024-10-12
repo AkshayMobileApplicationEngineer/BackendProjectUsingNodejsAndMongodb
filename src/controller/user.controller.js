@@ -8,7 +8,6 @@ import uploadOnCloudinary from '../utils/uploadOnCloudinary.js';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose'; // Add this for ObjectId conversion
-
 const { ObjectId } = mongoose.Types;
 
 // Generate access and refresh tokens
@@ -257,10 +256,11 @@ const getUserProfile = asyncHandler(async (req, res) => {
         $lookup: {
           from: "subscriptions",
           localField: "_id",
-          foreignField: "Subscriber"
+          foreignField: "Subscriber",
           as: "subscribedTo"
         }
-      },
+      }
+,      
       {
         $addFields: {
           subscriberCount: {
@@ -305,22 +305,54 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-
 //watch history
-
 const getwatchHistory = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const watchHistory = await Channel.find({
-      "watchHistory.Watcher": userId
-    });
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(req.user._id)
+        }
+      },
+      {
+        $lookup: {
+          from: 'videos',
+          localField: 'watchHistory',
+          foreignField: '_id',
+          as: 'watchHistory',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'owner',
+                foreignField: '_id',
+                as: 'owner',
+                pipeline:[
+                  {
+                    $project: {
+                      fullname:1,
+                      username:1,
+                      avatar:1,
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $addFields:{
+                owner:{$arrayElemAt: ['$owner', 0]}
+              }
+            }
+          ]
+        }
+      }
+    ]);
 
-    res.json(watchHistory);
+    res.json(user);
   } catch (error) {
     next(error);
   }
 };
-
 
 // Export the functions
 export { 

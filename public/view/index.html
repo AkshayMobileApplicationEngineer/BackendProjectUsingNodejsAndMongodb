@@ -1,104 +1,121 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
-    <link rel="stylesheet" href="./css/api.css">
+    <title>User Management API</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h1, h2, h3, h4 { color: #333; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
 </head>
 <body>
+    <h1>User Management API</h1>
+    <p>This is a User Management API built using Node.js and MongoDB, providing functionalities for user registration, login, logout, and more. The API is designed to handle user authentication and account management.</p>
+    
+    <h2>Table of Contents</h2>
+    <ul>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#environment-variables">Environment Variables</a></li>
+        <li><a href="#api-endpoints">API Endpoints</a></li>
+        <li><a href="#usage">Usage</a></li>
+        <li><a href="#running-the-server">Running the Server</a></li>
+        <li><a href="#contributing">Contributing</a></li>
+        <li><a href="#license">License</a></li>
+    </ul>
 
-    <div class="container">
-        <header>
-            <h1 style="color: rgb(40, 83, 120);">API Documentation</h1>
-            <p>By Akshay Kumar Prajapati</p>
-        </header>
+    <h2 id="installation">Installation</h2>
+    <ol>
+        <li>Clone the repository:
+            <pre><code>git clone &lt;repository-url&gt;
+cd &lt;repository-directory&gt;</code></pre>
+        </li>
+        <li>Install the dependencies:
+            <pre><code>npm install</code></pre>
+        </li>
+    </ol>
 
-        <section>
-            <h2>Database Connection URI</h2>
-            <pre>mongodb+srv://akshaykumarprajapati:&lt;db_password&gt;@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0</pre>
-        </section>
-
-        <section>
-            <h2>Environment Variables</h2>
-            <pre>
-MONGO_URI=mongodb+srv://akshaykumarprajapati:akshaykumarprajapati@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    <h2 id="environment-variables">Environment Variables</h2>
+    <p>Make sure to create a <code>.env</code> file in the root directory of your project and add the following variables:</p>
+    <pre><code>MONGO_URI=mongodb+srv://&lt;username&gt;:&lt;password&gt;@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 PORT=3000
 CORS_ORIGIN=*
-ACCESS_TOKEN_SECRET=&lt;ACCESS_TOKEN_SECRET&gt;
+ACCESS_TOKEN_SECRET=&lt;your-access-token-secret&gt;
 ACCESS_TOKEN_EXPIRES_IN=1d
-REFRESH_TOKEN_SECRET=&lt;REFRESH_TOKEN_SECRET&gt;
+REFRESH_TOKEN_SECRET=&lt;your-refresh-token-secret&gt;
 REFRESH_TOKEN_EXPIRES_IN=7d
-CLOUDINARY_NAME=dhoe9htic
-CLOUDINARY_API_KEY=538386617635724
-CLOUDINARY_API_SECRET=&lt;CLOUDINARY_API_SECRET&gt;
-            </pre>
-        </section>
+CLOUDINARY_NAME=&lt;your-cloudinary-name&gt;
+CLOUDINARY_API_KEY=&lt;your-cloudinary-api-key&gt;
+CLOUDINARY_API_SECRET=&lt;your-cloudinary-api-secret&gt;
+</code></pre>
+    <p>Replace <code>&lt;username&gt;</code>, <code>&lt;password&gt;</code>, and other placeholders with your actual credentials.</p>
 
-        <section>
-            <h2>API Endpoint</h2>
-            <h3>Register User</h3>
-            <p><strong>POST</strong> <code>http://localhost:3000/api/v1/user/register</code></p>
+    <h2 id="api-endpoints">API Endpoints</h2>
+    <table>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        <tr><td>POST</td><td>/api/v1/user/register</td><td>Register a new user</td></tr>
+        <tr><td>POST</td><td>/api/v1/user/login</td><td>Log in an existing user</td></tr>
+        <tr><td>POST</td><td>/api/v1/user/logout</td><td>Log out the current user</td></tr>
+        <tr><td>POST</td><td>/api/v1/user/refresh-token</td><td>Refresh user access token</td></tr>
+        <tr><td>PATCH</td><td>/api/v1/user/change-password</td><td>Change user password</td></tr>
+        <tr><td>GET</td><td>/api/v1/user/current-user</td><td>Get the current logged-in user</td></tr>
+        <tr><td>PATCH</td><td>/api/v1/user/update-account</td><td>Update user account information</td></tr>
+        <tr><td>PATCH</td><td>/api/v1/user/avatar</td><td>Update user avatar</td></tr>
+        <tr><td>PATCH</td><td>/api/v1/user/cover-image</td><td>Update user cover image</td></tr>
+        <tr><td>GET</td><td>/api/v1/user/c/:username</td><td>Get user by username</td></tr>
+        <tr><td>GET</td><td>/api/v1/user/history</td><td>Get user watch history</td></tr>
+    </table>
 
-            <h3>Request Body</h3>
-            <div class="example">
-                <pre>
+    <h2 id="usage">Usage</h2>
+
+    <h3>Register User</h3>
+    <pre><code>POST /api/v1/user/register
+Content-Type: application/json
+
 {
-    "email": "akshaykumar@gmail.com",
-    "password": "1234565432",
-    "fullname": "Akshay Kumar Prajapati",
-    "username": "akshaykumar"
+    "username": "user@example.com",
+    "email": "user@example.com",
+    "password": "yourpassword"
 }
-                </pre>
-            </div>
+</code></pre>
 
-            <h3>Response Body (Success)</h3>
-            <pre>
+    <h3>Log In User</h3>
+    <pre><code>POST /api/v1/user/login
+Content-Type: application/json
+
 {
+    "email": "kumari@testing.com",
+    "password": "apitesti"
+}
+</code></pre>
+
+    <h3>Log Out User</h3>
+    <pre><code>POST /api/v1/user/logout</code></pre>
+
+    <h3>Response Example</h3>
+    <pre><code>{
+    "statusCode": 200,
     "success": true,
-    "message": "User registered successfully"
+    "message": "User logged out successfully",
+    "data": {}
 }
-            </pre>
+</code></pre>
 
-            <h3>Response Body (Error)</h3>
-            <pre>
-{
-    "success": false,
-    "message": "Server Error",
-    "error": "Avatar file is required"
-}
-            </pre>
-        </section>
+    <h2 id="running-the-server">Running the Server</h2>
+    <p>To start the server, run:</p>
+    <pre><code>node index.js</code></pre>
+    <p>The server will run on <code>http://localhost:3000</code>.</p>
 
-    POST    http://localhost:3000/api/v1/user/register
+    <h2 id="contributing">Contributing</h2>
+    <p>Contributions are welcome! Please feel free to submit a pull request or open an issue.</p>
 
-    form data
-    [{"key":"fullname","value":"Vishal kumar praja","type":"text","enabled":true},{"key":"avatar","type":"file","enabled":true,"value":["postman-cloud:///1ef7cde1-000b-4340-941c-55680855b0c3"]},{"key":"coverImage","type":"file","enabled":true,"value":["postman-cloud:///1ef7bd5e-ef6f-4ff0-b767-dc6c36141029"]},{"key":"email","value":"vishal@testing.com","type":"text","enabled":true},{"key":"password","value":"apitesti","type":"text","enabled":true},{"key":"username","value":"testing@gmail","type":"text","enabled":true}]
-
-
-    Response data
-    {
-        "statusCode": 200,
-        "message": "User registered successfully",
-        "success": true,
-        "data": {
-            "_id": "66f6c72297fe51d7660bba49",
-            "username": "neha@gmail",
-            "email": "kumari@testing.com",
-            "fullname": "Neha kumar praja",
-            "avatar": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448873/tkh4zxykyzltvivrctee.jpg",
-            "coverImage": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448874/hdvqkh538f8wgynha9ys.png",
-            "watchHistory": [],
-            "createdAt": "2024-09-27T14:54:26.936Z",
-            "updatedAt": "2024-09-27T14:54:26.936Z",
-            "__v": 0
-        }
-    }
-        <footer>
-            <p>&copy; 2024 Akshay Kumar Prajapati. All rights reserved.</p>
-            <a href="http://localhost:3000/api/v1/user/register" class="fancy-button">Test API</a>
-        </footer>
-    </div>
-
+    <h2 id="license">License</h2>
+    <p>This project is licensed under the MIT License.</p>
 </body>
 </html>
