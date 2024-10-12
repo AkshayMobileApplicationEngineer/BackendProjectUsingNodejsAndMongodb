@@ -230,76 +230,97 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 });
 
 // Get user profile function
+// Get user profile function
 const getUserProfile = asyncHandler(async (req, res) => {
-  const { username } = req.params;
-  console.log(req.params);
+  try {
+    const { username } = req.params;
 
-  if (!username?.trim()) {
-    throw new ApiError(400, "Username is missing");
-  }
+    if (!username?.trim()) {
+      throw new ApiError(400, "Username is missing");
+    }
 
-  const channel = await User.aggregate([
-    {
-      $match: {
-        username: username.toLowerCase()
-      }
-    },
-    {
-      $lookup: {
-        from: "subscriptions",
-        localField: "_id",
-        foreignField: "channel",
-        as: "subscribers"
-      }
-    },
-    {
-      $lookup: {
-        from: "subscriptions",
-        localField: "_id",
-        foreignField: "Subscriber",
-        as: "subscribedTo"
-      }
-    },
-    {
-      $addFields: {
-        subscriberCount: {
-          $size: "$subscribers"
-        },
-        channelSubscribedCount: {
-          $size: "$subscribedTo"
-        },
-        isSubscribed: {
-          $cond: {
-            if: {
-              $in: [ObjectId(req.user._id), "$subscribedTo.Subscriber"]
-            },
-            then: true,
-            else: false
+    const channel = await User.aggregate([
+      {
+        $match: {
+          username: username.toLowerCase()
+        }
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "channel",
+          as: "subscribers"
+        }
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "Subscriber"
+          as: "subscribedTo"
+        }
+      },
+      {
+        $addFields: {
+          subscriberCount: {
+            $size: "$subscribers"
+          },
+          channelSubscribedCount: {
+            $size: "$subscribedTo"
+          },
+          isSubscribed: {
+            $cond: {
+              if: {
+                $in: [ObjectId(req.user._id), "$subscribedTo.Subscriber"]
+              },
+              then: true,
+              else: false
+            }
           }
         }
+      },
+      {
+        $project: {
+          fullname: 1,
+          username: 1,
+          subscriberCount: 1,
+          channelSubscribedCount: 1,
+          isSubscribed: 1,
+          avatar: 1,
+          coverImage: 1,
+          email: 1
+        }
       }
-    },
-    {
-      $project: {
-        fullname: 1,
-        username: 1,
-        subscriberCount: 1,
-        channelSubscribedCount: 1,
-        isSubscribed: 1,
-        avatar: 1,
-        coverImage: 1,
-        email: 1
-      }
+    ]);
+
+    if (!channel.length) {
+      throw new ApiError(404, "User  not found");
     }
-  ]);
 
-  if (!channel.length) {
-    throw new ApiError(404, "User not found");
+    // Ensure to send a response back to the client
+    res.status(200).json(channel[0]);
+  } catch (error) {
+    next(error);
   }
-
-  // Ensure to send a response back to the client
-  res.status(200).json(channel[0]);
 });
+
+
+//watch history
+
+const getwatchHistory = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const watchHistory = await Channel.find({
+      "watchHistory.Watcher": userId
+    });
+
+    res.json(watchHistory);
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 // Export the functions
 export { 
@@ -312,5 +333,6 @@ export {
   updateAccountDetails,
   updateUserAvatar,
   updateUserCoverImage,
-  getUserProfile
+  getUserProfile,
+  getwatchHistory
 };
