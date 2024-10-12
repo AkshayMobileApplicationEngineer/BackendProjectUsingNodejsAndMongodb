@@ -7,6 +7,9 @@ import { User } from '../model/user.model.js';
 import uploadOnCloudinary from '../utils/uploadOnCloudinary.js';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose'; // Add this for ObjectId conversion
+
+const { ObjectId } = mongoose.Types;
 
 // Generate access and refresh tokens
 const createTokens = async (userId) => {
@@ -226,6 +229,78 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
+// Get user profile function
+const getUserProfile = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  console.log(req.params);
+
+  if (!username?.trim()) {
+    throw new ApiError(400, "Username is missing");
+  }
+
+  const channel = await User.aggregate([
+    {
+      $match: {
+        username: username.toLowerCase()
+      }
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers"
+      }
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "Subscriber",
+        as: "subscribedTo"
+      }
+    },
+    {
+      $addFields: {
+        subscriberCount: {
+          $size: "$subscribers"
+        },
+        channelSubscribedCount: {
+          $size: "$subscribedTo"
+        },
+        isSubscribed: {
+          $cond: {
+            if: {
+              $in: [ObjectId(req.user._id), "$subscribedTo.Subscriber"]
+            },
+            then: true,
+            else: false
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        fullname: 1,
+        username: 1,
+        subscriberCount: 1,
+        channelSubscribedCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1
+      }
+    }
+  ]);
+
+  if (!channel.length) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Ensure to send a response back to the client
+  res.status(200).json(channel[0]);
+});
+
 // Export the functions
 export { 
   registerUser,
@@ -236,5 +311,6 @@ export {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
-  updateUserCoverImage
+  updateUserCoverImage,
+  getUserProfile
 };
