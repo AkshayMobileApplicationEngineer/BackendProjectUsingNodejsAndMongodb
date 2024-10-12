@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose'; // Add this for ObjectId conversion
 const { ObjectId } = mongoose.Types;
-
+const bcrypt = require('bcrypt');
 // Generate access and refresh tokens
 const createTokens = async (userId) => {
   const user = await User.findById(userId);
@@ -40,26 +40,38 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is required");
   }
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  if (!avatar) {
-    throw new ApiError(400, "Avatar file upload failed");
+  let avatar;
+  try {
+    avatar = await uploadOnCloudinary(avatarLocalPath);
+    if (!avatar) {
+      throw new ApiError(400, "Avatar file upload failed");
+    }
+  } catch (error) {
+    throw new ApiError(500, "Failed to upload avatar: " + error.message);
   }
 
-  const coverImage = coverImageLocalPath ? await uploadOnCloudinary(coverImageLocalPath) : null;
+  let coverImage = null;
+  if (coverImageLocalPath) {
+    try {
+      coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    } catch (error) {
+      throw new ApiError(500, "Failed to upload cover image: " + error.message);
+    }
+  }
 
+  const hashedPassword = await bcrypt.hash(password, 10);
   const user = await User.create({
     fullname,
     avatar: avatar?.url,
     coverImage: coverImage?.url || "",
     email,
-    password,
+    password: hashedPassword,
     username: username.toLowerCase()
   });
 
   const createdUser = await User.findById(user._id).select("-password -refreshToken");
   return res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
-
 // Login user function
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
