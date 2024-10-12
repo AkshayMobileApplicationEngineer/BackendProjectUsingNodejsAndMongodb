@@ -1,87 +1,222 @@
-akshaykumarprajapati
+# User Management API
 
+This is a User Management API built using Node.js and MongoDB, providing functionalities for user registration, login, logout, and more. The API is designed to handle user authentication and account management.
 
+##Table of Contents
 
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Usage](#usage)
+- [Running the Server](#running-the-server)
+- [Contributing](#contributing)
 
+##Installation
 
-mongodb+srv://akshaykumarprajapati:<db_password>@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
 
+2. Install the dependencies:
+   ```bash
+   npm install
+   ```
 
-MONGO_URI=mongodb+srv://akshaykumarprajapati:akshaykumarprajapati@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+## Environment Variables
+
+Make sure to create a `.env` file in the root directory of your project and add the following variables:
+
+```plaintext
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.ome2p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
 PORT=3000
-
-
-
-
-
 CORS_ORIGIN=*
-ACCESS_TOKEN_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjZlYzVmZjFhYzk3ZTdmZDVmNmI4OWVlIn0sImlhdCI6MTcyNjc2NzA4OSwiZXhwIjoxNzI2NzcwNjg5fQ.svmLuxlOAcrhBHQWXASEHKZfXRKw9K7Hvcha8mcl84
+ACCESS_TOKEN_SECRET=<your-access-token-secret>
 ACCESS_TOKEN_EXPIRES_IN=1d
-REFRESH_TOKEN_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjZlYzVmZjFhYzk3ZTdmZDVmNmI4OWVlIn0sImlhdCI6MTcyNjc2NzA4OSwiZXhwIjoxNzI2NzcwNjg5fQ.svmLuxlOAcrhBHQWXASEHKZfXRKw9K7Hvcha8mcl84
+REFRESH_TOKEN_SECRET=<your-refresh-token-secret>
 REFRESH_TOKEN_EXPIRES_IN=7d
 
+CLOUDINARY_NAME=<your-cloudinary-name>
+CLOUDINARY_API_KEY=<your-cloudinary-api-key>
+CLOUDINARY_API_SECRET=<your-cloudinary-api-secret>
+```
 
+Replace `<username>`, `<password>`, and other placeholders with your actual credentials.
 
-CLOUDINARY_NAME=dhoe9htic
-CLOUDINARY_API_KEY=538386617635724
-CLOUDINARY_API_SECRET=_QLHaWaKnutBITuNE0S7qvmDSGM
+## API Endpoints
 
+| Method | Endpoint                               | Description                       |
+|--------|----------------------------------------|-----------------------------------|
+| POST   | `/api/v1/user/register`               | Register a new user               |
+| POST   | `/api/v1/user/login`                  | Log in an existing user           |
+| POST   | `/api/v1/user/logout`                 | Log out the current user          |
+| POST   | `/api/v1/user/refresh-token`          | Refresh user access token         |
+| PATCH  | `/api/v1/user/change-password`        | Change user password              |
+| GET    | `/api/v1/user/current-user`           | Get the current logged-in user    |
+| PATCH  | `/api/v1/user/update-account`         | Update user account information    |
+| PATCH  | `/api/v1/user/avatar`                 | Update user avatar                |
+| PATCH  | `/api/v1/user/cover-image`            | Update user cover image           |
+| GET    | `/api/v1/user/c/:username`            | Get user by username              |
+| GET    | `/api/v1/user/history`                | Get user watch history            |
 
+## Usage
 
-post http://localhost:3000/api/v1/user/register
+Testing your `registerUser` API endpoint using Postman is a great way to ensure that it works correctly. Here’s a step-by-step guide on how to set up and perform the tests.
 
+### Step 1: Set Up Your Server
+
+Ensure your server is running and the API endpoint for user registration is active. The endpoint might look something like this:
+
+```
+POST http://localhost:5000/api/users/register
+```
+
+### Step 2: Open Postman
+
+1. **Download Postman** (if you haven’t already) from [Postman’s website](https://www.postman.com/downloads/).
+2. **Open Postman**.
+
+### Step 3: Create a New Request
+
+1. Click on the **"New"** button or **"+"** tab to create a new request.
+2. Select **"Request"**.
+
+### Step 4: Set Up the Request
+
+1. **Select the request type**: Choose **POST** from the dropdown menu.
+2. **Enter the URL**: Type in the URL of your registration endpoint (e.g., `http://localhost:5000/api/users/register`).
+
+### Step 5: Set Up the Body of the Request
+
+1. Select the **"Body"** tab below the URL.
+2. Choose the **"form-data"** option.
+3. Add the following fields:
+
+   | Key               | Value                | Type     |
+   |-------------------|----------------------|----------|
+   | fullname          | John Doe             | Text     |
+   | email             | johndoe@example.com  | Text     |
+   | username          | johndoe123           | Text     |
+   | password          | securePassword123     | Text     |
+   | avatar            | (choose file)        | File     |
+   | coverImage        | (choose file)        | File     |
+
+### Step 6: Select Files
+
+- For the **avatar** and **coverImage** fields, click on the "Choose Files" button to upload images from your local machine. Ensure the files you upload are of acceptable types (e.g., JPG, PNG).
+
+### Step 7: Send the Request
+
+1. Click on the **"Send"** button.
+2. Wait for the response from the server.
+
+### Step 8: Analyze the Response
+
+- You should see a response in the bottom section of Postman. It should return a status code and a JSON response.
+
+#### Expected Responses
+
+1. **Success (201 Created)**:
+   ```json
+   {
+     "status": 201,
+     "data": {
+       "fullname": "John Doe",
+       "email": "johndoe@example.com",
+       "username": "johndoe123",
+       "avatar": "https://your-cloudinary-url",
+       "coverImage": "https://your-cloudinary-url" // if provided
+     },
+     "message": "User registered successfully"
+   }
+   ```
+
+2. **Bad Request (400)** (if any fields are missing):
+   ```json
+   {
+     "status": 400,
+     "message": "All fields are required"
+   }
+   ```
+
+3. **Conflict (409)** (if user already exists):
+   ```json
+   {
+     "status": 409,
+     "message": "User already exists"
+   }
+   ```
+
+4. **Error during file upload** (if applicable):
+   ```json
+   {
+     "status": 400,
+     "message": "Avatar file upload failed"
+   }
+   ```
+
+### Step 9: Testing Different Scenarios
+
+You can test various scenarios by modifying the request data:
+
+- **Try registering with existing email or username**.
+- **Omit the avatar or cover image** to check the error handling.
+- **Use invalid data** (e.g., short passwords or invalid email format).
+
+### Step 10: Debugging
+
+If you encounter issues:
+
+- **Check the server logs** for any errors or exceptions.
+- **Use console logs** in your server code to debug specific parts of the registration logic.
+- Ensure that your Cloudinary (or any file upload service) configurations are correctly set up.
+
+### Conclusion
+
+Postman is a powerful tool for testing your APIs. Following these steps, you should be able to effectively test the registration endpoint of your application. Let me know if you need further assistance!
+
+### Log In User
+```http
+POST /api/v1/user/login
+Content-Type: application/json
 
 {
-    "success": true,
-    "message": "User Register Now"
+    "email": "kumari@testing.com",
+    "password": "apitesti"
 }
-POst  http://localhost:3000/api/v1/user/login
-{
-    "email":"kumari@testing.com",
-    "password":"apitesti"
-}
+```
 
-respoond 
+### Log Out User
+```http
+POST /api/v1/user/logout
+```
 
-
-{
-    "statusCode": 200,
-    "success": true,
-    "message": "User Logged In Successfully",
-    "data": {
-        "user": {
-            "_id": "66f6c72297fe51d7660bba49",
-            "username": "neha@gmail",
-            "email": "kumari@testing.com",
-            "fullname": "Neha kumar praja",
-            "avatar": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448873/tkh4zxykyzltvivrctee.jpg",
-            "coverImage": "http://res.cloudinary.com/dhoe9htic/image/upload/v1727448874/hdvqkh538f8wgynha9ys.png",
-            "watchHistory": [],
-            "createdAt": "2024-09-27T14:54:26.936Z",
-            "updatedAt": "2024-09-30T17:38:04.001Z",
-            "__v": 0
-        },
-        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmY2YzcyMjk3ZmU1MWQ3NjYwYmJhNDkiLCJlbWFpbCI6Imt1bWFyaUB0ZXN0aW5nLmNvbSIsInVzZXJuYW1lIjoibmVoYUBnbWFpbCIsImZ1bGxuYW1lIjoiTmVoYSBrdW1hciBwcmFqYSIsImlhdCI6MTcyNzcxNzg4MywiZXhwIjoxNzI3ODA0MjgzfQ.YKV4kVMtdAPz9tPVKTAZCQ3_Q6AylzQHjW4UlW5ab7I",
-        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmY2YzcyMjk3ZmU1MWQ3NjYwYmJhNDkiLCJpYXQiOjE3Mjc3MTc4ODMsImV4cCI6MTcyODMyMjY4M30.vo0G3gZZVnZJjGWNO4QeX0P2_5-rJtVgS0eOnIuTAG0"
-    }
-}
-
-
-
-///logout 
-
-POst  http://localhost:3000/api/v1/user/logout
-
-send the data none
-
-response data 
-
+### Response Example
+```json
 {
     "statusCode": 200,
     "success": true,
     "message": "User logged out successfully",
     "data": {}
 }
+```
 
+## Running the Server
 
+To start the server, run:
 
+```bash
+node index.js
+```
+
+The server will run on `http://localhost:3000`.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue.
+
+## License
+
+This project is licensed under the MIT License.

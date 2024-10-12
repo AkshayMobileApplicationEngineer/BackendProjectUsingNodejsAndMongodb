@@ -7,7 +7,9 @@ import { User } from '../model/user.model.js';
 import uploadOnCloudinary from '../utils/uploadOnCloudinary.js';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
-
+import mongoose from 'mongoose'; // Add this for ObjectId conversion
+const { ObjectId } = mongoose.Types;
+const bcrypt = require('bcrypt');
 // Generate access and refresh tokens
 const createTokens = async (userId) => {
   const user = await User.findById(userId);
@@ -38,26 +40,38 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is required");
   }
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  if (!avatar) {
-    throw new ApiError(400, "Avatar file upload failed");
+  let avatar;
+  try {
+    avatar = await uploadOnCloudinary(avatarLocalPath);
+    if (!avatar) {
+      throw new ApiError(400, "Avatar file upload failed");
+    }
+  } catch (error) {
+    throw new ApiError(500, "Failed to upload avatar: " + error.message);
   }
 
-  const coverImage = coverImageLocalPath ? await uploadOnCloudinary(coverImageLocalPath) : null;
+  let coverImage = null;
+  if (coverImageLocalPath) {
+    try {
+      coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    } catch (error) {
+      throw new ApiError(500, "Failed to upload cover image: " + error.message);
+    }
+  }
 
+  const hashedPassword = await bcrypt.hash(password, 10);
   const user = await User.create({
     fullname,
     avatar: avatar?.url,
     coverImage: coverImage?.url || "",
     email,
-    password,
+    password: hashedPassword,
     username: username.toLowerCase()
   });
 
   const createdUser = await User.findById(user._id).select("-password -refreshToken");
   return res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
-
 // Login user function
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
@@ -226,6 +240,132 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
+// Get user profile function
+// Get user profile function
+const getUserProfile = asyncHandler(async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username?.trim()) {
+      throw new ApiError(400, "Username is missing");
+    }
+
+    const channel = await User.aggregate([
+      {
+        $match: {
+          username: username.toLowerCase()
+        }
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "channel",
+          as: "subscribers"
+        }
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "Subscriber",
+          as: "subscribedTo"
+        }
+      }
+,      
+      {
+        $addFields: {
+          subscriberCount: {
+            $size: "$subscribers"
+          },
+          channelSubscribedCount: {
+            $size: "$subscribedTo"
+          },
+          isSubscribed: {
+            $cond: {
+              if: {
+                $in: [ObjectId(req.user._id), "$subscribedTo.Subscriber"]
+              },
+              then: true,
+              else: false
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          fullname: 1,
+          username: 1,
+          subscriberCount: 1,
+          channelSubscribedCount: 1,
+          isSubscribed: 1,
+          avatar: 1,
+          coverImage: 1,
+          email: 1
+        }
+      }
+    ]);
+
+    if (!channel.length) {
+      throw new ApiError(404, "User  not found");
+    }
+
+    // Ensure to send a response back to the client
+    res.status(200).json(channel[0]);
+  } catch (error) {
+    next(error);
+  }
+});
+
+//watch history
+const getwatchHistory = async (req, res, next) => {
+  try {
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(req.user._id)
+        }
+      },
+      {
+        $lookup: {
+          from: 'videos',
+          localField: 'watchHistory',
+          foreignField: '_id',
+          as: 'watchHistory',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'owner',
+                foreignField: '_id',
+                as: 'owner',
+                pipeline:[
+                  {
+                    $project: {
+                      fullname:1,
+                      username:1,
+                      avatar:1,
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $addFields:{
+                owner:{$arrayElemAt: ['$owner', 0]}
+              }
+            }
+          ]
+        }
+      }
+    ]);
+
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Export the functions
 export { 
   registerUser,
@@ -236,5 +376,7 @@ export {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
-  updateUserCoverImage
+  updateUserCoverImage,
+  getUserProfile,
+  getwatchHistory
 };

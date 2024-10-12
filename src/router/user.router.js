@@ -1,5 +1,17 @@
 import { Router } from 'express';
-import { loginUser, registerUser, logoutUser, refreshAccessToken } from '../controller/user.controller.js';
+import {
+  loginUser,
+  registerUser,
+  logoutUser,
+  refreshAccessToken,
+  changeCurrentPassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
+  getUserProfile,
+  getwatchHistory,
+} from '../controller/user.controller.js';
 import { upload } from '../middleware/multer.middleware.js';
 import { VerifyJWT } from '../middleware/auth.middleware.js';
 import colors from 'colors'; // Importing colors for colored console logs
@@ -18,28 +30,46 @@ const logRoute = (route, method, color) => {
 router.route('/register').post(
   upload.fields([
     {
-      name: "avatar",
-      maxCount: 1
+      name: 'avatar',
+      maxCount: 1,
     },
     {
-      name: "coverImage",
-      maxCount: 1
-    }
+      name: 'coverImage',
+      maxCount: 1,
+    },
   ]),
   registerUser
 );
 logRoute('/register', 'post', 'green');
 
-// Route for user login
 router.route('/login').post(loginUser);
 logRoute('/login', 'post', 'yellow');
 
-// Secured route for logout
 router.route('/logout').post(VerifyJWT, logoutUser);
 logRoute('/logout', 'post', 'yellow');
 
-// Route for refreshing token
-router.route('/refresh-Token').post(refreshAccessToken);
-logRoute('/refresh-Token', 'post', 'blue');
+router.route('/refresh-token').post(refreshAccessToken);
+logRoute('/refresh-token', 'post', 'blue');
+
+router.route('/change-password').patch(VerifyJWT, changeCurrentPassword);
+logRoute('/change-password', 'patch', 'cyan');
+
+router.route('/current-user').get(VerifyJWT, getCurrentUser);
+logRoute('/current-user', 'get', 'cyan');
+
+router.route('/update-account').patch(VerifyJWT, updateAccountDetails);
+logRoute('/update-account', 'patch', 'cyan');
+
+router.route('/avatar').patch(VerifyJWT, upload.single('avatar'), updateUserAvatar);
+logRoute('/avatar', 'patch', 'cyan');
+
+router.route('/cover-image').patch(VerifyJWT, upload.single('coverImage'), updateUserCoverImage);
+logRoute('/cover-image', 'patch', 'cyan');
+
+router.route('/c/:username').get(VerifyJWT, getUserProfile);
+logRoute('/c/:username', 'get', 'cyan');
+
+router.route('/history').get(VerifyJWT, getwatchHistory);
+logRoute('/history', 'get', 'cyan');
 
 export default router;

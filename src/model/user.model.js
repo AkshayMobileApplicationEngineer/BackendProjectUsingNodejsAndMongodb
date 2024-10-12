@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -52,10 +52,15 @@ const userSchema = new Schema(
 );
 
 // Hash password before saving the user
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 10); // Hashing password
-    next();
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (err) {
+        next(err);
+    }
 });
 
 // Check if password is correct
@@ -83,7 +88,7 @@ userSchema.methods.generateAccessToken = function() {
 userSchema.methods.generateRefreshToken = function() {
     return jwt.sign(
         {
-            _id: this._id,
+            _id: this._id
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
